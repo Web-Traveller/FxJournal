@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FxJournal — Institutional Forex Trading Journal</title>
+  <meta name="description" content="Local-first desktop trading journal with Wall Street P&L execution calendars, prop firm risk guards, and cryptographic auto-updates.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0c0d0e;
+      --card-bg: #121316;
+      --card-hover: #16181c;
+      --border: #22242a;
+      --border-focus: #34d399;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --danger: #f43f5e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 10% 20%, rgba(30, 41, 59, 0.15) 0%, transparent 40%);
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Top Grid Header */
+    header {
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      background: rgba(12, 13, 14, 0.75);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: #181a1e;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .badge-emerald {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1100px;
+      margin: 4.5rem auto 3rem;
+      padding: 0 1.5rem;
+      text-align: center;
+    }
+
+    .release-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.35rem 0.85rem;
+      background: #131518;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      transition: all 0.2s;
+    }
+
+    .release-pill:hover {
+      border-color: #3f434d;
+      color: var(--text);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    /* CTA Section */
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .btn-primary {
+      background: #fafafa;
+      color: #0c0d0e;
+      font-weight: 600;
+      padding: 0.9rem 2.2rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      box-shadow: 0 0 25px rgba(250, 250, 250, 0.15);
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border: 1px solid #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #ededed;
+      transform: translateY(-1px);
+      box-shadow: 0 0 35px rgba(250, 250, 250, 0.25);
+    }
+
+    .btn-primary svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .download-meta {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .download-meta a {
+      color: var(--text-muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .download-meta a:hover {
+      color: #34d399;
+    }
+
+    /* Grid Feature Cards */
+    .features-grid {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.75rem;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card:hover {
+      border-color: #383b44;
+      background: var(--card-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      background: #181a1e;
+      border: 1px solid #282a32;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+      color: #34d399;
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Release Terminal Card */
+    .terminal-section {
+      max-width: 900px;
+      margin: 3rem auto 5rem;
+      padding: 0 1.5rem;
+    }
+
+    .terminal-card {
+      background: #0f1013;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-header {
+      background: #15171b;
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .terminal-body {
+      padding: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .terminal-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #1e2026;
+    }
+
+    .terminal-row:last-child {
+      border-bottom: none;
+    }
+
+    .terminal-key {
+      color: var(--text-dim);
+    }
+
+    .terminal-val {
+      color: #fafafa;
+    }
+
+    .terminal-val-emerald {
+      color: #34d399;
+    }
+
+    /* Windows SmartScreen Banner */
+    .notice-box {
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(30, 41, 59, 0.25);
+      border: 1px solid #283344;
+      border-radius: 8px;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .notice-box strong {
+      color: #fafafa;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .terminal-row { flex-direction: column; gap: 0.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <img src="logo.svg" alt="FxJournal Logo">
+        <span>FxJournal</span>
+        <span class="badge badge-emerald">
+          <span class="badge-dot"></span>
+          <span id="nav-tag">v0.1.0</span>
+        </span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#changelog">Changelog</a>
+        <a href="https://github.com/Web-Traveller/FxJournal" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Web-Traveller/FxJournal/releases" target="_blank" rel="noopener">Releases</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero">
+      <a href="https://github.com/Web-Traveller/FxJournal/releases/latest" target="_blank" rel="noopener" class="release-pill">
+        <span class="badge-dot"></span>
+        <span id="pill-text">Latest Release: v0.1.0 Institutional Edition</span>
+        <span>→</span>
+      </a>
+
+      <h1>Institutional Trading Journal<br>Engineered for Windows.</h1>
+
+      <p class="hero-sub">
+        100% local-first privacy. Wall Street P&L execution calendars, prop firm risk guards, multi-format trade logging, and cryptographic auto-updates.
+      </p>
+
+      <!-- Primary Download CTA -->
+      <div class="cta-container">
+        <a id="primary-download-btn" href="https://github.com/Web-Traveller/FxJournal/releases/download/v0.1.0/FxJournal_0.1.0_x64-setup.exe" class="btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="btn-label">Download for Windows (64-bit)</span>
+        </a>
+
+        <div class="download-meta">
+          <span>Installer: <strong id="installer-filename" class="text-white">FxJournal_0.1.0_x64-setup.exe</strong></span>
+          <span>•</span>
+          <span>Size: <strong id="installer-size">1.9 MB</strong></span>
+          <span>•</span>
+          <a id="msi-link" href="https://github.com/Web-Traveller/FxJournal/releases/download/v0.1.0/FxJournal_0.1.0_x64_en-US.msi">Download .MSI</a>
+          <span>•</span>
+          <a href="https://github.com/Web-Traveller/FxJournal/releases" target="_blank" rel="noopener">All Assets</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- First Time Windows Notice -->
+    <section style="padding: 0 1.5rem;">
+      <div class="notice-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="shrink-0; margin-top: 2px;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <div>
+          <strong>First-time Windows Launch Note:</strong> FxJournal is an independent, zero-telemetry desktop application. When launched for the first time, Microsoft Defender SmartScreen may display <em>"Windows protected your PC"</em>. Simply click <strong>"More info"</strong> and then <strong>"Run anyway"</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Feature Showcase -->
+    <section id="features" class="features-grid">
+      <!-- 1. Calendar -->
+      <div class="card">
+        <div>
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <h3>Wall Street P&L Calendar</h3>
+          <p>
+            An 8-column layout with weekly ribbon KPI subtotals, win-rate metrics, daily net P&L heatmaps, and expandable day execution logs.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2. Prop Firm Guard -->
+      <div class="card">
+        <div>
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <h3>Prop Firm Risk Guard</h3>
+          <p>
+            Real-time daily loss tracking and maximum trailing drawdown alerts configured to FTMO, The Funded Trader, and custom prop firm evaluation rules.
+          </p>
+        </div>
+      </div>
+
+      <!-- 3. Local-First Privacy -->
+      <div class="card">
+        <div>
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3>100% Local-First Privacy</h3>
+          <p>
+            Zero cloud databases, zero telemetry, and no broker credentials needed. Your trade notes, account balances, and screenshots live strictly on your NVMe/SSD.
+          </p>
+        </div>
+      </div>
+
+      <!-- 4. Multi-Method Logging -->
+      <div class="card">
+        <div>
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <h3>Detailed Institutional Logging</h3>
+          <p>
+            Capture entry/exit prices, fees, slippage, trade session tags (London/NY), setups, and multi-image screenshot attachments with full-screen lightbox inspection.
+          </p>
+        </div>
+      </div>
+
+      <!-- 5. Minisign Auto-Updater -->
+      <div class="card">
+        <div>
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </div>
+          <h3>Cryptographic Auto-Updater</h3>
+          <p>
+            Powered by Tauri v2 and Minisign Ed25519 signatures. FxJournal quietly verifies releases in the background, keeping your journal up to date seamlessly.
+          </p>
+        </div>
+      </div>
+
+      <!-- 6. Universal Backup -->
+      <div class="card">
+        <div>
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+            </svg>
+          </div>
+          <h3>One-Click Portable Backups</h3>
+          <p>
+            Export and restore complete databases anytime with encrypted <code>.fxbackup</code> JSON archives. Effortlessly transfer your data between trading rigs.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Release Info & Dynamic Metadata -->
+    <section id="changelog" class="terminal-section">
+      <div class="terminal-card">
+        <div class="terminal-header">
+          <span>STATUS: RELEASE_VERIFIED</span>
+          <span id="terminal-date">2026-11-05</span>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-row">
+            <span class="terminal-key">TAG_VERSION:</span>
+            <span class="terminal-val terminal-val-emerald" id="info-tag">v0.1.0</span>
+          </div>
+          <div class="terminal-row">
+            <span class="terminal-key">ARCH_TARGET:</span>
+            <span class="terminal-val">x86_64-pc-windows-msvc (Windows 10/11 64-bit)</span>
+          </div>
+          <div class="terminal-row">
+            <span class="terminal-key">SIGNATURE_ALGO:</span>
+            <span class="terminal-val terminal-val-emerald">Ed25519 Minisign Public Key</span>
+          </div>
+          <div class="terminal-row">
+            <span class="terminal-key">SETUP_INSTALLER:</span>
+            <span class="terminal-val" id="info-setup-name">FxJournal_0.1.0_x64-setup.exe</span>
+          </div>
+          <div class="terminal-row">
+            <span class="terminal-key">ENTERPRISE_MSI:</span>
+            <span class="terminal-val" id="info-msi-name">FxJournal_0.1.0_x64_en-US.msi</span>
+          </div>
+          <div class="terminal-row">
+            <span class="terminal-key">UPDATE_SERVER:</span>
+            <span class="terminal-val terminal-val-emerald">GitHub Releases / CDN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/Web-Traveller/FxJournal" target="_blank" rel="noopener">GitHub Repository</a>
+      <a href="https://github.com/Web-Traveller/FxJournal/releases" target="_blank" rel="noopener">Release Notes</a>
+      <a href="https://github.com/Web-Traveller/FxJournal/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+    </div>
+    <p>FxJournal Desktop • Built with Tauri v2 & React • Institutional Execution Journal</p>
+  </footer>
+
+  <!-- Dynamic GitHub Release Resolver -->
+  <script>
+    (function () {
+      const REPO = 'Web-Traveller/FxJournal';
+      const API_URL = `https://api.github.com/repos/${REPO}/releases/latest`;
+
+      // Fallback constants if API fails or rate limited
+      const FALLBACK = {
+        version: 'v0.1.0',
+        setupUrl: 'https://github.com/Web-Traveller/FxJournal/releases/download/v0.1.0/FxJournal_0.1.0_x64-setup.exe',
+        msiUrl: 'https://github.com/Web-Traveller/FxJournal/releases/download/v0.1.0/FxJournal_0.1.0_x64_en-US.msi',
+        sizeFormatted: '1.9 MB',
+        date: '2026-11-05'
+      };
+
+      async function fetchLatestRelease() {
+        try {
+          const res = await fetch(API_URL);
+          if (!res.ok) throw new Error('API request failed');
+          const data = await res.json();
+
+          const tagName = data.tag_name || FALLBACK.version;
+          const pubDate = data.published_at ? data.published_at.substring(0, 10) : FALLBACK.date;
+          
+          let setupAsset = data.assets.find(a => a.name.endsWith('-setup.exe'));
+          let msiAsset = data.assets.find(a => a.name.endsWith('.msi'));
+
+          const setupDownloadUrl = setupAsset ? setupAsset.browser_download_url : FALLBACK.setupUrl;
+          const msiDownloadUrl = msiAsset ? msiAsset.browser_download_url : FALLBACK.msiUrl;
+          
+          let sizeStr = FALLBACK.sizeFormatted;
+          if (setupAsset && setupAsset.size) {
+            sizeStr = (setupAsset.size / (1024 * 1024)).toFixed(2) + ' MB';
+          }
+
+          // Update UI
+          document.getElementById('nav-tag').innerText = tagName;
+          document.getElementById('pill-text').innerText = `Latest Release: ${tagName} Institutional Edition`;
+          document.getElementById('btn-label').innerText = `Download for Windows (${tagName})`;
+          document.getElementById('primary-download-btn').setAttribute('href', setupDownloadUrl);
+          
+          const setupFilename = setupAsset ? setupAsset.name : 'FxJournal_' + tagName.replace('v', '') + '_x64-setup.exe';
+          const msiFilename = msiAsset ? msiAsset.name : 'FxJournal_' + tagName.replace('v', '') + '_x64_en-US.msi';
+          
+          document.getElementById('installer-filename').innerText = setupFilename;
+          document.getElementById('installer-size').innerText = sizeStr;
+          document.getElementById('msi-link').setAttribute('href', msiDownloadUrl);
+
+          document.getElementById('terminal-date').innerText = pubDate;
+          document.getElementById('info-tag').innerText = tagName;
+          document.getElementById('info-setup-name').innerText = setupFilename;
+          document.getElementById('info-msi-name').innerText = msiFilename;
+
+        } catch (err) {
+          console.log('Using static fallback release URLs:', err);
+        }
+      }
+
+      fetchLatestRelease();
+    })();
+  </script>
+</body>
+</html>
