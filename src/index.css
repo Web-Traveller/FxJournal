@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --color-background: #0c0d0e;
+  --color-canvas: #131417;
+  --color-canvas-soft: #0f1013;
+  --color-surface-elevated: #181a1e;
+  --color-border: #26282f;
+  --color-border-soft: #1c1e22;
+  --color-border-strong: #363943;
+  --color-foreground: #ededed;
+  --color-heading: #fafafa;
+  --color-foreground-muted: #9ca3af;
+  --color-foreground-tertiary: #6b7280;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0c0d0e;
+  color: #ededed;
+  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom desktop scrollbar matching getdesign.md */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0c0d0e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #26282f;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #363943;
+}
+
+::selection {
+  background-color: rgba(250, 250, 250, 0.2);
+  color: #ffffff;
+}
+
+/* Tabular figures */
+.num-font, .tabular-nums {
+  font-family: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%" fill="none">
+  <defs>
+    <linearGradient id="c1-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121316"/>
+      <stop offset="100%" stop-color="#0c0d0e"/>
+    </linearGradient>
+    <linearGradient id="c1-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="c1-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="c1-border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="c1-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Container Box with Rounded Chamfer -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#c1-bg)" stroke="url(#c1-border)" stroke-width="2.5"/>
+  <rect x="26" y="26" width="460" height="460" rx="106" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- Candlestick Wick (Axis) -->
+  <line x1="172" y1="112" x2="172" y2="400" stroke="url(#c1-silver)" stroke-width="6" stroke-linecap="round" stroke-opacity="0.3"/>
+
+  <!-- Monogram F Vertical Pillar -->
+  <rect x="154" y="152" width="36" height="208" rx="8" fill="url(#c1-silver)"/>
+
+  <!-- F Upper Horizontal Beam (Candlestick Open/High Block) -->
+  <path d="M 190 152 L 278 152 C 284 152 288 156 288 162 L 288 184 C 288 190 284 194 278 194 L 190 194 Z" fill="url(#c1-silver)"/>
+
+  <!-- F Middle Execution Node (Emerald Accent Pip) -->
+  <path d="M 190 236 L 254 236 C 260 236 264 240 264 246 L 264 268 C 264 274 260 278 254 278 L 190 278 Z" fill="url(#c1-emerald)"/>
+
+  <!-- Diagonal X - Cross Blade 1 (Descending Liquidity Sweep) -->
+  <path d="M 252 152 L 292 152 L 396 352 L 356 352 Z" fill="url(#c1-silver)" fill-opacity="0.95"/>
+
+  <!-- Diagonal X - Cross Blade 2 with Emerald Ascending Momentum Break -->
+  <path d="M 360 152 L 400 152 L 338 272 L 306 272 Z" fill="url(#c1-silver)" fill-opacity="0.9"/>
+  <path d="M 314 286 L 280 352 L 240 352 L 284 268 L 302 268 Z" fill="url(#c1-emerald)" filter="url(#c1-glow)"/>
+
+  <!-- Precision Crosshair Focus Dots -->
+  <circle cx="172" cy="112" r="4" fill="#34d399"/>
+  <circle cx="172" cy="400" r="4" fill="#64748b"/>
+  <circle cx="396" cy="352" r="4" fill="#34d399"/>
+  <circle cx="360" cy="152" r="4" fill="#64748b"/>
+</svg>
