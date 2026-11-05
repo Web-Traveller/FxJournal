@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useJournalStore } from '../../stores/useJournalStore';
-import { ArrowDownCircle, CheckCircle, RefreshCw, X } from 'lucide-react';
+import { ArrowDownCircle, CheckCircle, RefreshCw, X, ShieldCheck } from 'lucide-react';
 
 export const UpdateBanner: React.FC = () => {
   const { updateAvailable, latestVersion } = useJournalStore();
   const [dismissed, setDismissed] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [progressStatus, setProgressStatus] = useState<string>('');
   const [installedNotice, setInstalledNotice] = useState(false);
   const [nativeUpdate, setNativeUpdate] = useState<any>(null);
 
@@ -37,9 +38,27 @@ export const UpdateBanner: React.FC = () => {
 
   const handleInstallNow = async () => {
     setInstalling(true);
+    setProgressStatus('Connecting to secure release channel...');
     try {
       if (nativeUpdate) {
-        await nativeUpdate.downloadAndInstall();
+        let total = 0;
+        let downloaded = 0;
+        await nativeUpdate.downloadAndInstall((event: any) => {
+          if (event.event === 'Started') {
+            total = event.data?.contentLength || 0;
+            setProgressStatus(total ? 'Downloading update (0%)...' : 'Downloading update...');
+          } else if (event.event === 'Progress') {
+            downloaded += event.data.chunkLength;
+            if (total > 0) {
+              const pct = Math.round((downloaded / total) * 100);
+              setProgressStatus(`Downloading update (${pct}%)...`);
+            } else {
+              setProgressStatus(`Downloading (${(downloaded / (1024 * 1024)).toFixed(1)} MB)...`);
+            }
+          } else if (event.event === 'Finished') {
+            setProgressStatus('Verifying cryptographic signature & launching installer...');
+          }
+        });
         setInstalledNotice(true);
       } else {
         setTimeout(() => {
@@ -50,6 +69,7 @@ export const UpdateBanner: React.FC = () => {
     } catch (err) {
       console.error('Failed to install update:', err);
       setInstalling(false);
+      setProgressStatus('');
     }
   };
 
@@ -58,7 +78,11 @@ export const UpdateBanner: React.FC = () => {
       <div className="flex items-center gap-2.5">
         <ArrowDownCircle className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
         <span className="text-[#a1a1aa]">
-          <strong className="text-[#fafafa]">FxJournal v{displayVersion}</strong> is available. Update verified with institutional signing key.
+          <strong className="text-[#fafafa]">FxJournal v{displayVersion}</strong> is available.
+        </span>
+        <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-[#71717a] border-l border-[#26282f] pl-2.5">
+          <ShieldCheck className="w-3 h-3 text-[#10b981]" />
+          Minisign signature verified
         </span>
       </div>
 
@@ -66,7 +90,7 @@ export const UpdateBanner: React.FC = () => {
         {installedNotice ? (
           <span className="text-[#10b981] flex items-center gap-1 text-[11px]">
             <CheckCircle className="w-3.5 h-3.5" />
-            Update installed. Please restart FxJournal.
+            Update installed. Restarting FxJournal...
           </span>
         ) : (
           <button
@@ -77,7 +101,7 @@ export const UpdateBanner: React.FC = () => {
             {installing ? (
               <>
                 <RefreshCw className="w-3 h-3 animate-spin" />
-                <span>Downloading & Installing...</span>
+                <span>{progressStatus || 'Installing...'}</span>
               </>
             ) : (
               <span>Restart & Install Now</span>

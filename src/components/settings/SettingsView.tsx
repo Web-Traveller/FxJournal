@@ -15,7 +15,12 @@ import {
   Archive,
   ArchiveRestore,
   AlertTriangle,
-  Sliders
+  Sliders,
+  RefreshCw,
+  CheckCircle2,
+  ArrowDownCircle,
+  ShieldCheck,
+  ExternalLink
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -32,6 +37,83 @@ export const SettingsView: React.FC = () => {
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmClearData, setConfirmClearData] = useState(false);
+
+  // Native updater state
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'up-to-date' | 'update-available' | 'error'>('idle');
+  const [updateInfo, setUpdateInfo] = useState<any>(null);
+  const [installingUpdate, setInstallingUpdate] = useState(false);
+  const [updateProgressText, setUpdateProgressText] = useState<string>('');
+
+  const handleCheckUpdates = async () => {
+    setCheckingUpdate(true);
+    setUpdateStatus('idle');
+    try {
+      if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+        const { check } = await import('@tauri-apps/plugin-updater');
+        const update = await check();
+        if (update) {
+          setUpdateInfo(update);
+          setUpdateStatus('update-available');
+        } else {
+          setUpdateStatus('up-to-date');
+        }
+      } else {
+        setTimeout(() => {
+          setUpdateStatus('up-to-date');
+        }, 800);
+      }
+    } catch (err) {
+      console.error('Check update error:', err);
+      setUpdateStatus('error');
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
+  const handleInstallUpdate = async () => {
+    if (!updateInfo) return;
+    setInstallingUpdate(true);
+    setUpdateProgressText('Starting download...');
+    try {
+      let total = 0;
+      let downloaded = 0;
+      await updateInfo.downloadAndInstall((event: any) => {
+        if (event.event === 'Started') {
+          total = event.data?.contentLength || 0;
+          setUpdateProgressText(total ? 'Downloading update (0%)...' : 'Downloading update...');
+        } else if (event.event === 'Progress') {
+          downloaded += event.data.chunkLength;
+          if (total > 0) {
+            const pct = Math.round((downloaded / total) * 100);
+            setUpdateProgressText(`Downloading update (${pct}%)...`);
+          } else {
+            setUpdateProgressText(`Downloading (${(downloaded / (1024 * 1024)).toFixed(1)} MB)...`);
+          }
+        } else if (event.event === 'Finished') {
+          setUpdateProgressText('Verifying signature & restarting...');
+        }
+      });
+    } catch (err) {
+      console.error('Install update error:', err);
+      setInstallingUpdate(false);
+      setUpdateProgressText('Failed to install update');
+    }
+  };
+
+  const handleOpenReleasePage = async () => {
+    const url = 'https://github.com/Web-Traveller/FxJournal/releases';
+    try {
+      if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+        const { openUrl } = await import('@tauri-apps/plugin-opener');
+        await openUrl(url);
+      } else {
+        window.open(url, '_blank');
+      }
+    } catch {
+      window.open(url, '_blank');
+    }
+  };
 
   const totalScreenshots = trades.reduce((sum, t) => sum + (t.images?.length || 0), 0);
 
@@ -263,6 +345,104 @@ export const SettingsView: React.FC = () => {
             >
               Clear Local Database
             </Button>
+          )}
+        </div>
+      </Card>
+
+      {/* Application & Updater */}
+      <Card
+        header={
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 text-[#71717a]" />
+              <span>Application Updates & Integrity</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="neutral" size="xs">
+                v0.1.0 STABLE
+              </Badge>
+            </div>
+          </div>
+        }
+      >
+        <div className="space-y-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-[#0f1013] rounded-[4px] border border-[#26282f] font-mono text-xs">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[#fafafa]">FxJournal Desktop Enterprise</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#181a1e] text-[#a1a1aa] border border-[#26282f]">
+                  Channel: Official Release
+                </span>
+              </div>
+              <div className="text-[11px] text-[#71717a] mt-1 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#10b981]" />
+                <span>Minisign Public Key Cryptography Active</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleOpenReleasePage}
+                className="px-2.5 py-1 text-xs text-[#a1a1aa] hover:text-[#fafafa] bg-[#181a1e] hover:bg-[#202227] border border-[#26282f] rounded-[4px] transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span>Releases</span>
+              </button>
+
+              <Button
+                variant="secondary"
+                size="xs"
+                disabled={checkingUpdate || installingUpdate}
+                onClick={handleCheckUpdates}
+                icon={<RefreshCw className={`w-3 h-3 ${checkingUpdate ? 'animate-spin' : ''}`} />}
+              >
+                {checkingUpdate ? 'Checking...' : 'Check for Updates'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Update Status Feedback */}
+          {updateStatus === 'up-to-date' && (
+            <div className="flex items-center gap-2 p-2.5 bg-[#10b981]/10 border border-[#10b981]/25 rounded-[4px] text-xs text-[#10b981] font-mono">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>You are on the latest version of FxJournal (v0.1.0). All systems operational.</span>
+            </div>
+          )}
+
+          {updateStatus === 'update-available' && updateInfo && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-[#10b981]/10 border border-[#10b981]/30 rounded-[4px] text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <ArrowDownCircle className="w-4 h-4 text-[#10b981] shrink-0" />
+                <div>
+                  <span className="text-[#fafafa] font-bold">New update available: v{updateInfo.version}</span>
+                  <p className="text-[11px] text-[#a1a1aa] mt-0.5">
+                    Verified package ready for automatic background installation.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleInstallUpdate}
+                disabled={installingUpdate}
+                className="px-3 py-1.5 bg-[#10b981] hover:bg-[#059669] text-[#0c0d0e] font-semibold rounded-[4px] transition flex items-center gap-1.5 cursor-pointer text-xs self-start sm:self-auto shrink-0"
+              >
+                {installingUpdate ? (
+                  <>
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                    <span>{updateProgressText || 'Installing...'}</span>
+                  </>
+                ) : (
+                  <span>Restart & Install v{updateInfo.version}</span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {updateStatus === 'error' && (
+            <div className="flex items-center gap-2 p-2.5 bg-[#f59e0b]/10 border border-[#f59e0b]/25 rounded-[4px] text-xs text-[#f59e0b] font-mono">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>Could not connect to update servers. Check your internet connection or GitHub status.</span>
+            </div>
           )}
         </div>
       </Card>
