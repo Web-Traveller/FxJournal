@@ -27,6 +27,14 @@
       "csp": null
     }
   },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYzN0MyOTI0NjQxMzUwNTMKUldSVFVCTmtKQ2w4OHdYWlNaaTVXUm4vUThQV25KVlZqM3poei9RNUNpZ0RFWXhBSEdyNlMyc1IK",
+      "endpoints": [
+        "https://github.com/Web-Traveller/FxJournal/releases/latest/download/latest.json"
+      ]
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",
