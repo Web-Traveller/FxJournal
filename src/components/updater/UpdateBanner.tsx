@@ -40,7 +40,6 @@ export const UpdateBanner: React.FC = () => {
     try {
       if (nativeUpdate) {
         await nativeUpdate.downloadAndInstall();
-        const { relaunch } = await import('@tauri-apps/plugin-opener');
         setInstalledNotice(true);
       } else {
         setTimeout(() => {
