@@ -12,6 +12,7 @@ node_modules
 dist
 dist-ssr
 dist-installers
+release_artifacts
 src-tauri/target
 *.local
 
